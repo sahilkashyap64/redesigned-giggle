@@ -42,6 +42,9 @@ class YouTubeVideo extends React.PureComponent {
   onPlayerReady = event => {
     const { videoIDs} = this.props;
     event.target.loadVideoById(videoIDs[currentVideoId]);
+    this.player.loadPlaylist( {
+      playlist:videoIDs
+  } );
   };
   onPlayerStateChange = event => { 
     const { videoIDs} = this.props;
@@ -54,6 +57,25 @@ class YouTubeVideo extends React.PureComponent {
   }
   };
 
+  playButton = event => {
+    this.player.playVideo();
+  };
+   pauseButton = event => {
+    this.player.pauseVideo();
+  };
+  nextButton = event => {
+    this.player.nextVideo();
+  };
+  stopButton = event => {
+    this.player.stopVideo();
+  };
+  previousButton = event => {
+    this.player.previousVideo();
+  };
+
+
+
+
   render = () => {
   // const { videoIDs} = this.props;
    
@@ -62,6 +84,13 @@ class YouTubeVideo extends React.PureComponent {
         <div id={`youtube-player`}  />
         
         
+  <div className="buttons">
+  <button className="button" id="play-button" onClick={this.playButton} >play</button>
+  <button className="button" id="pause-button" onClick={this.pauseButton}>pause</button>
+
+  <button className="button" id="previous" onClick={this.previousButton}>previous</button>
+  <button className="button" id="next" onClick={this.nextButton}>Next</button>
+  <button className="button" id="stop-button" onClick={this.stopButton}>stop</button></div>
       </div>
     );
   };
