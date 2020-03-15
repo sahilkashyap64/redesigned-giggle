@@ -3,10 +3,12 @@ import React from 'react';
 //version 1
 
 
-var previousIndex = 0;
 class YouTubeVideo extends React.PureComponent {
   
-  
+  constructor(props) {
+    super(props);
+    this.previousIndex= 0;
+}
 
   componentDidMount = () => {
     // On mount, check to see if the API script is already loaded
@@ -35,13 +37,14 @@ class YouTubeVideo extends React.PureComponent {
         playlist: videoIDs.join(','),
     },
       events: {
-       // onReady: this.onPlayerReady,
+        onReady: this.onPlayerReady,
          onStateChange: this.onPlayerStateChange
       },
     });
   };
-
-  
+  onPlayerReady = event => { 
+    const { videoIDs} = this.props;
+  this.player.loadPlaylist(videoIDs);}
   onPlayerStateChange = event => { 
     const { videoIDs} = this.props;
     /*
@@ -59,7 +62,7 @@ class YouTubeVideo extends React.PureComponent {
                 if(this.player.getPlaylist().length != videoIDs.length) {
                     
                   // update playlist and start playing at the proper index
-                  this.player.loadPlaylist(videoIDs, previousIndex+1);
+                  this.player.loadPlaylist(videoIDs, this.previousIndex+1);
                 }
                 
                 /*
@@ -68,7 +71,7 @@ class YouTubeVideo extends React.PureComponent {
                 the next index will be zero and skip the new videos
                 to make sure we play the proper video, we use "last index + 1"
                 */
-                previousIndex = index;
+                this.previousIndex = index;
             }
   };
 
