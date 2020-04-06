@@ -3,10 +3,12 @@ import React from 'react';
 //version 1
 
 
-var currentVideoId = 0;
 class YouTubeVideo extends React.PureComponent {
   
-  
+  constructor(props) {
+    super(props);
+    this.previousIndex= 0;
+}
 
   componentDidMount = () => {
     // On mount, check to see if the API script is already loaded
@@ -27,34 +29,50 @@ class YouTubeVideo extends React.PureComponent {
   };
 
   loadVideo = () => {
-   // const { id } = this.props;
+    const { videoIDs} = this.props;
 
     // the Player object is created uniquely based on the id in props
     this.player = new window.YT.Player(`youtube-player`, {
-      
+      playerVars : {
+        playlist: videoIDs.join(','),
+    },
       events: {
         onReady: this.onPlayerReady,
          onStateChange: this.onPlayerStateChange
       },
     });
   };
-
-  onPlayerReady = event => {
+  onPlayerReady = event => { 
     const { videoIDs} = this.props;
-    event.target.loadVideoById(videoIDs[currentVideoId]);
-    this.player.loadPlaylist( {
-      playlist:videoIDs
-  } );
-  };
+  this.player.loadPlaylist(videoIDs);}
   onPlayerStateChange = event => { 
     const { videoIDs} = this.props;
-    // eslint-disable-next-line
-    if (event.data == window.YT.PlayerState.ENDED) {
-    currentVideoId++;
-    if (currentVideoId < videoIDs.length) {
-      this.player.loadVideoById(videoIDs[currentVideoId]);
-    }
-  }
+    /*
+                the video has changed
+                seize the opportunity to update the playlist without interruption
+                */
+               // eslint-disable-next-line 
+               if(event.data == -1) {
+                    
+                // get current video index
+                var index = this.player.getPlaylistIndex();
+                
+                // update when playlists do not match
+                // eslint-disable-next-line 
+                if(this.player.getPlaylist().length != videoIDs.length) {
+                    
+                  // update playlist and start playing at the proper index
+                  this.player.loadPlaylist(videoIDs, this.previousIndex+1);
+                }
+                
+                /*
+                keep track of the last index we got
+                if videos are added while the last playlist item is playing,
+                the next index will be zero and skip the new videos
+                to make sure we play the proper video, we use "last index + 1"
+                */
+                this.previousIndex = index;
+            }
   };
 
   playButton = event => {
